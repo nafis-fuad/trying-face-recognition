@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Stage Fright</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/tracking-min.js"></script>
+    <script src="js/data/eye-min.js"></script>
+
+    <style>
+        video,
+        canvas {
+            position: absolute;
+            top: 20%;
+            left: 6%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <video id="video" width="320" height="240" preload autoplay loop muted></video>
+    <canvas id="canvas" width="320" height="240"></canvas>
+
+    <button id="button">
+        <h1>Begin</h1>
+    </button>
+
+    <script>
+        const audio = new Audio('./John_Wesley_Coleman_Tequila.mp3');
+
+        window.onload = (event) => {
+            const button = document.getElementById("button");
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const tracker = new tracking.ObjectTracker(['eye']);
+            let isClicked = false;
+            button.addEventListener("mousedown", evt => {
+                if ((audio.ended === false) && (audio.paused === true)) {
+                    audio.play();
+                    isClicked = true;
+                    button.parentNode.removeChild(button);
+                }
+            });
+
+            tracker.setInitialScale(2); //4
+            tracker.setStepSize(1); //2
+            tracker.setEdgesDensity(0.1);
+            tracking.track('#video', tracker, { camera: true });
+
+            tracker.on('track', (event) => {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                if ((event.data.length === 0) && isClicked) {
+                    audio.play();
+                    console.log("Playing");
+                } else {
+                    audio.pause();
+                    console.log("Paused, can't sing if you look at me like that...");
+                }
+            });
+        };
+    </script>
+</body>
+
+</html>
